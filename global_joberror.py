@@ -402,6 +402,14 @@ def bcs():
     mdb.models['Model-1'].ConcentratedForce(name='Load-1', 
         createStepName='ApplyHolderForce', region=region, cf2=-90000.0, 
         distributionType=UNIFORM, field='', localCsys=None)
+    
+    a = mdb.models['Model-1'].rootAssembly
+    v1 = a.instances['Blank-1'].vertices
+    verts1 = v1.getSequenceFromMask(mask=('[#1 ]', ), )
+    region = regionToolset.Region(vertices=verts1)
+    mdb.models['Model-1'].DisplacementBC(name='add', createStepName='Initial', 
+        region=region, u1=UNSET, u2=SET, ur3=UNSET, amplitude=UNSET, 
+        distributionType=UNIFORM, fieldName='', localCsys=None)
 
 
 def Section():
