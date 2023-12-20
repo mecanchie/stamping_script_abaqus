@@ -38,10 +38,10 @@ def Blank_Holder():
     s1.FilletByRadius(radius=blankHolderRadius[0], curve1=g[2], nearPoint1=(-1.54641723632812, 
         19.5588073730469), curve2=g[5], nearPoint2=(19.072265625, 
         0.514694213867188))
-    p = mdb.models['Model-1'].Part(name='Blank_Holder', dimensionality=TWO_D_PLANAR, 
+    p = mdb.models['Model-1'].Part(name='Blank_Holder', dimensionality=THREE_D, 
         type=ANALYTIC_RIGID_SURFACE)
     p = mdb.models['Model-1'].parts['Blank_Holder']
-    p.AnalyticRigidSurf2DPlanar(sketch=s1)
+    p.AnalyticRigidSurfExtrude(sketch=s1, depth = 10)
     s1.unsetPrimaryObject()
     p = mdb.models['Model-1'].parts['Blank_Holder']
     session.viewports['Viewport: 1'].setValues(displayedObject=p)
@@ -57,10 +57,10 @@ def Blank():
     s1.FixedConstraint(entity=v[0])
     s1.ObliqueDimension(vertex1=v[0], vertex2=v[1], textPoint=(22.2239456176758, 
         10.7854957580566), value=143.56)
-    p = mdb.models['Model-1'].Part(name='Blank', dimensionality=TWO_D_PLANAR, 
+    p = mdb.models['Model-1'].Part(name='Blank', dimensionality=THREE_D, 
         type=DEFORMABLE_BODY)
     p = mdb.models['Model-1'].parts['Blank']
-    p.BaseWire(sketch=s1)
+    p.BaseShellExtrude(sketch=s1, depth=10)
     s1.unsetPrimaryObject()
     p = mdb.models['Model-1'].parts['Blank']
     session.viewports['Viewport: 1'].setValues(displayedObject=p)
@@ -90,10 +90,10 @@ def Die():
     s.FilletByRadius(radius=10.0, curve1=g[2], nearPoint1=(74.4298248291016, 
         80.2981185913086), curve2=g[3], nearPoint2=(79.53955078125, 
         75.8002853393555))
-    p = mdb.models['Model-1'].Part(name='Die', dimensionality=TWO_D_PLANAR, 
+    p = mdb.models['Model-1'].Part(name='Die', dimensionality=THREE_D, 
         type=ANALYTIC_RIGID_SURFACE)
     p = mdb.models['Model-1'].parts['Die']
-    p.AnalyticRigidSurf2DPlanar(sketch=s)
+    p.AnalyticRigidSurfExtrude(sketch=s, depth = 10)
     s.unsetPrimaryObject()
     p = mdb.models['Model-1'].parts['Die']
     session.viewports['Viewport: 1'].setValues(displayedObject=p)
@@ -117,10 +117,10 @@ def PunchGeometry():
     s1.FilletByRadius(radius=5.0, curve1=g[3], nearPoint1=(3.24427032470703, 
         -0.0253257751464844), curve2=g[2], nearPoint2=(-0.152076721191406, 
         2.6085376739502))
-    p = mdb.models['Model-1'].Part(name='Punch',  dimensionality=TWO_D_PLANAR, 
+    p = mdb.models['Model-1'].Part(name='Punch',  dimensionality=THREE_D, 
         type=ANALYTIC_RIGID_SURFACE)
     p = mdb.models['Model-1'].parts['Punch']
-    p.AnalyticRigidSurf2DPlanar(sketch=s1)
+    p.AnalyticRigidSurfExtrude(sketch=s1, depth = 10)
     s1.unsetPrimaryObject()
     p = mdb.models['Model-1'].parts['Punch']
     session.viewports['Viewport: 1'].setValues(displayedObject=p)
@@ -200,7 +200,7 @@ def Constraint():
     region5=regionToolset.Region(side2Edges=side2Edges1)
     a = mdb.models['Model-1'].rootAssembly
     r1 = a.referencePoints
-    refPoints1=tuple(a.Set(referencePoints=(a.referencePoints[idRPPunch],), name='RP_Punch'))
+    refPoints1=(r1[9], )
     region1=regionToolset.Region(referencePoints=refPoints1)
     mdb.models['Model-1'].RigidBody(name='Constraint-Die', refPointRegion=region1, 
         surfaceRegion=region5)
@@ -282,59 +282,10 @@ def interaction():
 
 
 
-def BCDispHolder():
-    a = mdb.models['Model-1'].rootAssembly
-    r1 = a.referencePoints
-    refPoints1=(r1[10], )
-    region = a.Set(referencePoints=refPoints1, name='DispHolder')
-    mdb.models['Model-1'].DisplacementBC(name='DispHolder', 
-        createStepName='Initial', region=region, u1=SET, u2=SET, ur3=SET, 
-        amplitude=UNSET, distributionType=UNIFORM, fieldName='', 
-        localCsys=None)
-    mdb.models['Model-1'].boundaryConditions['DispHolder'].setValuesInStep(
-        stepName='ApplyHolderForce', u2=FREED)
 
 
-def BCEncDie():
-    a = mdb.models['Model-1'].rootAssembly
-    r1 = a.referencePoints
-    refPoints1=(r1[9], )
-    region = a.Set(referencePoints=refPoints1, name='EncDie')
-    mdb.models['Model-1'].DisplacementBC(name='EncDie', createStepName='Initial', 
-        region=region, u1=SET, u2=SET, ur3=SET, amplitude=UNSET, 
-        distributionType=UNIFORM, fieldName='', localCsys=None)
 
-def BCDispPunch():
-    a = mdb.models['Model-1'].rootAssembly
-    r1 = a.referencePoints
-    refPoints1=(r1[11], )
-    region = a.Set(referencePoints=refPoints1, name='DispPunch')
-    mdb.models['Model-1'].DisplacementBC(name='DispPunch', 
-        createStepName='Initial', region=region, u1=SET, u2=SET, ur3=SET, 
-        amplitude=UNSET, distributionType=UNIFORM, fieldName='', 
-        localCsys=None)
-    mdb.models['Model-1'].boundaryConditions['DispPunch'].setValuesInStep(
-        stepName='ApplyPunchDisp', u2=-60.0)
-    mdb.models['Model-1'].boundaryConditions['DispPunch'].setValuesInStep(
-        stepName='RemovePunch', u2=0.0)
 
-def BCAdd():
-    a = mdb.models['Model-1'].rootAssembly
-    v1 = a.instances['Blank-1'].vertices
-    verts1 = v1.getSequenceFromMask(mask=('[#1 ]', ), )
-    region = a.Set(vertices=verts1, name='Add')
-    mdb.models['Model-1'].DisplacementBC(name='Add', createStepName='Initial', 
-        region=region, u1=UNSET, u2=SET, ur3=UNSET, amplitude=UNSET, 
-        distributionType=UNIFORM, fieldName='', localCsys=None)
-
-def BCBlank():
-    a = mdb.models['Model-1'].rootAssembly
-    a = mdb.models['Model-1'].rootAssembly
-    v1 = a.instances['Blank-1'].vertices
-    verts1 = v1.getSequenceFromMask(mask=('[#2 ]', ), )
-    region = a.Set(vertices=verts1, name='Blank_set')
-    mdb.models['Model-1'].XsymmBC(name='Blank_set', createStepName='Initial', 
-        region=region, localCsys=None)
 
 
 
