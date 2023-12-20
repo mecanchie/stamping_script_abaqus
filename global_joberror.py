@@ -21,6 +21,7 @@ import displayGroupOdbToolset as dgo
 import connectorBehavior
 
 
+
 import __main__
 
 def Blank_Holder():
@@ -119,7 +120,7 @@ def PunchGeometry():
     p = mdb.models['Model-1'].Part(name='Punch',  dimensionality=TWO_D_PLANAR, 
         type=ANALYTIC_RIGID_SURFACE)
     p = mdb.models['Model-1'].parts['Punch']
-    p.BaseWire(sketch=s1)
+    p.AnalyticRigidSurf2DPlanar(sketch=s1)
     s1.unsetPrimaryObject()
     p = mdb.models['Model-1'].parts['Punch']
     session.viewports['Viewport: 1'].setValues(displayedObject=p)
@@ -171,18 +172,26 @@ def ReferencePoint():
     a = mdb.models['Model-1'].rootAssembly
     a = mdb.models['Model-1'].rootAssembly
     v1 = a.instances['Die-1'].vertices
-    a.ReferencePoint(point=v1[1])
+    RPDie = a.ReferencePoint(point=v1[1])
+    idRPDie=RPDie.id
     a = mdb.models['Model-1'].rootAssembly
     e1 = a.instances['Blank_Holder-1'].edges
-    a.ReferencePoint(point=a.instances['Blank_Holder-1'].InterestingPoint(
+    RPBlankHolder = a.ReferencePoint(point=a.instances['Blank_Holder-1'].InterestingPoint(
         edge=e1[3], rule=MIDDLE))
+    
+    idRPBlankHolder=RPBlankHolder.id
     a = mdb.models['Model-1'].rootAssembly
     v11 = a.instances['Punch-1'].vertices
-    a.ReferencePoint(point=v11[0])
+    RPPunch = a.ReferencePoint(point=v11[0])
+    idRPPunch = RPPunch.id
+
+    return idRPPunch
 
 
 
 def Constraint():
+    
+    
     a = mdb.models['Model-1'].rootAssembly
     a.regenerate()
     a = mdb.models['Model-1'].rootAssembly
@@ -191,7 +200,7 @@ def Constraint():
     region5=regionToolset.Region(side2Edges=side2Edges1)
     a = mdb.models['Model-1'].rootAssembly
     r1 = a.referencePoints
-    refPoints1=(r1[9], )
+    refPoints1=tuple(a.Set(referencePoints=(a.referencePoints[idRPPunch],), name='RP_Punch'))
     region1=regionToolset.Region(referencePoints=refPoints1)
     mdb.models['Model-1'].RigidBody(name='Constraint-Die', refPointRegion=region1, 
         surfaceRegion=region5)
@@ -416,10 +425,12 @@ Blank()
 Die()
 PunchGeometry()
 
+
+
 blankMaterial()
 
 Assembly()
-ReferencePoint()
+idRPPunch = ReferencePoint()
 Constraint()
 
 interaction_properties()

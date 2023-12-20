@@ -42,7 +42,7 @@ def PunchGeometry():
     p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=TWO_D_PLANAR, 
         type=DEFORMABLE_BODY)
     p = mdb.models['Model-1'].parts['Part-1']
-    p.BaseWire(sketch=s1)
+    p.AnalyticRigidSurf2DPlanar(sketch=s1)
     s1.unsetPrimaryObject()
     p = mdb.models['Model-1'].parts['Part-1']
     session.viewports['Viewport: 1'].setValues(displayedObject=p)
