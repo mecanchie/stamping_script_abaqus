@@ -457,7 +457,66 @@ def BeamOrientationJob():
         modelPrint=OFF, contactPrint=OFF, historyPrint=OFF, userSubroutine='', 
         scratch='', resultsFormat=ODB, numThreadsPerMpiProcess=1, 
         multiprocessingMode=DEFAULT, numCpus=1, numGPUs=0)
+    
 
+def translate():
+    a1 = mdb.models['Model-1'].rootAssembly
+    e2 = a1.instances['Die-1'].edges
+    e1 = a1.instances['Blank_Holder-1'].edges
+    a1.EdgeToEdge(movableAxis=e1[2], fixedAxis=e2[2], flip=OFF, clearance=0.0)
+    a1 = mdb.models['Model-1'].rootAssembly
+    e2 = a1.instances['Blank_Holder-1'].edges
+    e1 = a1.instances['Punch-1'].edges
+    a1.EdgeToEdge(movableAxis=e1[2], fixedAxis=e2[1], flip=ON, clearance=0.0)
+    a1 = mdb.models['Model-1'].rootAssembly
+    a1.translate(instanceList=('Die-1', ), vector=(0.0, 1.2, 0.0))
+    a1 = mdb.models['Model-1'].rootAssembly
+    a1.translate(instanceList=('Blank-1', ), vector=(-0.2, 0.6, 0.0))
+    a1 = mdb.models['Model-1'].rootAssembly
+    a1.translate(instanceList=('Punch-1', ), vector=(-0.2, 0.0, 0.0))
+
+
+def interactionChange():
+    a = mdb.models['Model-1'].rootAssembly
+    session.viewports['Viewport: 1'].setValues(displayedObject=a)
+    session.viewports['Viewport: 1'].assemblyDisplay.setValues(interactions=ON, 
+        constraints=ON, connectors=ON, engineeringFeatures=ON)
+    a = mdb.models['Model-1'].rootAssembly
+    s1 = a.instances['Blank_Holder-1'].edges
+    side2Edges1 = s1.getSequenceFromMask(mask=('[#1f ]', ), )
+    region1=regionToolset.Region(side2Edges=side2Edges1)
+    a = mdb.models['Model-1'].rootAssembly
+    s1 = a.instances['Blank-1'].edges
+    side1Edges1 = s1.getSequenceFromMask(mask=('[#1 ]', ), )
+    region2=regionToolset.Region(side1Edges=side1Edges1)
+    mdb.models['Model-1'].interactions['Blank_Holder'].setValues(main=region1, 
+        secondary=region2, initialClearance=OMIT, adjustMethod=NONE, 
+        sliding=FINITE, enforcement=SURFACE_TO_SURFACE, thickness=ON, 
+        contactTracking=TWO_CONFIG, bondingSet=None)
+    a = mdb.models['Model-1'].rootAssembly
+    s1 = a.instances['Die-1'].edges
+    side2Edges1 = s1.getSequenceFromMask(mask=('[#1f ]', ), )
+    region1=regionToolset.Region(side2Edges=side2Edges1)
+    a = mdb.models['Model-1'].rootAssembly
+    s1 = a.instances['Blank-1'].edges
+    side2Edges1 = s1.getSequenceFromMask(mask=('[#1 ]', ), )
+    region2=regionToolset.Region(side2Edges=side2Edges1)
+    mdb.models['Model-1'].interactions['Die_Blank'].setValues(main=region1, 
+        secondary=region2, initialClearance=OMIT, adjustMethod=NONE, 
+        sliding=FINITE, enforcement=SURFACE_TO_SURFACE, thickness=ON, 
+        contactTracking=TWO_CONFIG, bondingSet=None)
+    a = mdb.models['Model-1'].rootAssembly
+    s1 = a.instances['Punch-1'].edges
+    side2Edges1 = s1.getSequenceFromMask(mask=('[#7 ]', ), )
+    region1=regionToolset.Region(side2Edges=side2Edges1)
+    a = mdb.models['Model-1'].rootAssembly
+    s1 = a.instances['Blank-1'].edges
+    side1Edges1 = s1.getSequenceFromMask(mask=('[#1 ]', ), )
+    region2=regionToolset.Region(side1Edges=side1Edges1)
+    mdb.models['Model-1'].interactions['punch_Blank'].setValues(main=region1, 
+        secondary=region2, initialClearance=OMIT, adjustMethod=NONE, 
+        sliding=FINITE, enforcement=SURFACE_TO_SURFACE, thickness=ON, 
+        contactTracking=TWO_CONFIG, bondingSet=None)
 
 
 
@@ -489,5 +548,9 @@ if(boundaryConditions):
 Mesh()
 Section()
 BeamOrientationJob()
+translate()
+interactionChange()
+
+mdb.jobs['Job-2'].submit(consistencyChecking=OFF)
 
 
