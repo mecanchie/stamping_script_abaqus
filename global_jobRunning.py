@@ -19,6 +19,7 @@ import visualization
 import xyPlot
 import displayGroupOdbToolset as dgo
 import connectorBehavior
+import time
 
 
 import __main__
@@ -273,60 +274,6 @@ def interaction():
 
 
 
-def BCDispHolder():
-    a = mdb.models['Model-1'].rootAssembly
-    r1 = a.referencePoints
-    refPoints1=(r1[10], )
-    region = a.Set(referencePoints=refPoints1, name='DispHolder')
-    mdb.models['Model-1'].DisplacementBC(name='DispHolder', 
-        createStepName='Initial', region=region, u1=SET, u2=SET, ur3=SET, 
-        amplitude=UNSET, distributionType=UNIFORM, fieldName='', 
-        localCsys=None)
-    mdb.models['Model-1'].boundaryConditions['DispHolder'].setValuesInStep(
-        stepName='ApplyHolderForce', u2=FREED)
-
-
-def BCEncDie():
-    a = mdb.models['Model-1'].rootAssembly
-    r1 = a.referencePoints
-    refPoints1=(r1[9], )
-    region = a.Set(referencePoints=refPoints1, name='EncDie')
-    mdb.models['Model-1'].DisplacementBC(name='EncDie', createStepName='Initial', 
-        region=region, u1=SET, u2=SET, ur3=SET, amplitude=UNSET, 
-        distributionType=UNIFORM, fieldName='', localCsys=None)
-
-def BCDispPunch():
-    a = mdb.models['Model-1'].rootAssembly
-    r1 = a.referencePoints
-    refPoints1=(r1[11], )
-    region = a.Set(referencePoints=refPoints1, name='DispPunch')
-    mdb.models['Model-1'].DisplacementBC(name='DispPunch', 
-        createStepName='Initial', region=region, u1=SET, u2=SET, ur3=SET, 
-        amplitude=UNSET, distributionType=UNIFORM, fieldName='', 
-        localCsys=None)
-    mdb.models['Model-1'].boundaryConditions['DispPunch'].setValuesInStep(
-        stepName='ApplyPunchDisp', u2=-60.0)
-    mdb.models['Model-1'].boundaryConditions['DispPunch'].setValuesInStep(
-        stepName='RemovePunch', u2=0.0)
-
-def BCAdd():
-    a = mdb.models['Model-1'].rootAssembly
-    v1 = a.instances['Blank-1'].vertices
-    verts1 = v1.getSequenceFromMask(mask=('[#1 ]', ), )
-    region = a.Set(vertices=verts1, name='Add')
-    mdb.models['Model-1'].DisplacementBC(name='Add', createStepName='Initial', 
-        region=region, u1=UNSET, u2=SET, ur3=UNSET, amplitude=UNSET, 
-        distributionType=UNIFORM, fieldName='', localCsys=None)
-
-def BCBlank():
-    a = mdb.models['Model-1'].rootAssembly
-    a = mdb.models['Model-1'].rootAssembly
-    v1 = a.instances['Blank-1'].vertices
-    verts1 = v1.getSequenceFromMask(mask=('[#2 ]', ), )
-    region = a.Set(vertices=verts1, name='Blank_set')
-    mdb.models['Model-1'].XsymmBC(name='Blank_set', createStepName='Initial', 
-        region=region, localCsys=None)
-
 
 
 def Mesh():
@@ -521,6 +468,61 @@ def interactionChange():
 
 
 
+
+def post():
+    session.viewports['Viewport: 1'].setValues(displayedObject=None)
+    o3 = session.openOdb(name='E:/temp/Job-2.odb')
+    session.viewports['Viewport: 1'].setValues(displayedObject=o3)
+    session.viewports['Viewport: 1'].makeCurrent()
+    a = mdb.models['Model-1'].rootAssembly
+    session.viewports['Viewport: 1'].setValues(displayedObject=a)
+    session.mdbData.summary()
+    session.viewports['Viewport: 1'].setValues(
+        displayedObject=session.odbs['E:/temp/Job-2.odb'])
+    session.viewports['Viewport: 1'].assemblyDisplay.setValues(interactions=OFF, 
+        constraints=OFF, connectors=OFF, engineeringFeatures=OFF)
+    session.viewports['Viewport: 1'].view.setValues(nearPlane=498.125, 
+        farPlane=721.267, width=39.916, height=16.979, viewOffsetX=42.6392, 
+        viewOffsetY=0.984373)
+    session.Path(name='Path-2', type=NODE_LIST, expression=(('BLANK-1', (1, 201, 
+        )), ))
+    xyp = session.xyPlots['XYPlot-1']
+    chartName = xyp.charts.keys()[0]
+    chart = xyp.charts[chartName]
+    pth = session.paths['Path-2']
+    xy1 = xyPlot.XYDataFromPath(path=pth, includeIntersections=False, 
+        projectOntoMesh=False, pathStyle=UNIFORM_SPACING, numIntervals=100, 
+        projectionTolerance=0, shape=UNDEFORMED, labelType=TRUE_DISTANCE, 
+        removeDuplicateXYPairs=True, includeAllElements=False)
+    c1 = session.Curve(xyData=xy1)
+    chart.setValues(curvesToPlot=(c1, ), )
+    session.charts[chartName].autoColor(lines=True, symbols=True)
+    session.viewports['Viewport: 1'].setValues(displayedObject=xyp)
+    odb = session.odbs['E:/temp/Job-2.odb']
+    session.viewports['Viewport: 1'].setValues(displayedObject=odb)
+    session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
+        CONTOURS_ON_DEF, ))
+    xyp = session.xyPlots['XYPlot-1']
+    chartName = xyp.charts.keys()[0]
+    chart = xyp.charts[chartName]
+    pth = session.paths['Path-2']
+    xy1 = xyPlot.XYDataFromPath(path=pth, includeIntersections=False, 
+        projectOntoMesh=False, pathStyle=UNIFORM_SPACING, numIntervals=100, 
+        projectionTolerance=0, shape=UNDEFORMED, labelType=TRUE_DISTANCE, 
+        removeDuplicateXYPairs=True, includeAllElements=False)
+    c1 = session.Curve(xyData=xy1)
+    chart.setValues(curvesToPlot=(c1, ), )
+    session.charts[chartName].autoColor(lines=True, symbols=True)
+    session.viewports['Viewport: 1'].setValues(displayedObject=xyp)
+    pth = session.paths['Path-2']
+    session.XYDataFromPath(name='Mises', path=pth, includeIntersections=False, 
+        projectOntoMesh=False, pathStyle=UNIFORM_SPACING, numIntervals=100, 
+        projectionTolerance=0, shape=UNDEFORMED, labelType=TRUE_DISTANCE, 
+        removeDuplicateXYPairs=True, includeAllElements=False)
+
+
+
+
 blankHolderRadius = [5]
 
 
@@ -554,3 +556,5 @@ interactionChange()
 mdb.jobs['Job-2'].submit(consistencyChecking=OFF)
 
 
+time.sleep(180) #kkk wait before post processing
+post()
