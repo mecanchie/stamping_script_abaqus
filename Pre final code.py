@@ -568,7 +568,7 @@ for i1 in range(0, len(punchRadius)):
 				count+=1
 				if count >=2:
 					mdb.Model(name='Model-'+ str(count), modelType=STANDARD_EXPLICIT)
-    					session.viewports['Viewport: 1'].setValues(displayedObject=None)
+    				session.viewports['Viewport: 1'].setValues(displayedObject=None)
 
 				Blank_Holder(count)
 				Blank(count)
@@ -605,7 +605,7 @@ for i1 in range(0, len(punchRadius)):
         				scratch='', resultsFormat=ODB)
 
 				mdb.jobs['Job-'+ str(count)].submit(consistencyChecking=OFF)
-				time.sleep(60)
+				time.sleep(240) # change the time for your computer 
 
 				PostProcessing(punchRadius[i1],holderForce[k1],t[l1],punchDisp[j1],count)
 		
